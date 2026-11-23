@@ -42,6 +42,7 @@ Examples of step sequences, depending on the request and what has already comple
 - "Create a Markdown report about this image" -> vision, reasoning if needed, document.write, finish.
 - "Create a new Markdown note about my idea" -> reasoning, document.write, finish.
 - "Add a mock calendar event" -> action, then finish once an executed receipt exists.
+Summarize or select the relevant answer after memory retrieval. A list of search matches is intermediate evidence.
 If the user requested an attachment or local action, conversation alone would leave that request unfinished.
 Never invent filenames, result IDs, action titles, or dates. Stop when the requested effect is present."""
 
@@ -145,7 +146,7 @@ class Harness:
             except ValueError as error:
                 return self._finish(task, "failed", f"Decision unavailable: {error}")
             if selection.capability == "finish":
-                if not task.results or self._missing_effects(task):
+                if not self._answer_ready(task) or self._missing_effects(task):
                     return self._finish(task, "needs_input", "처리 결과가 없습니다. 요청을 조금 더 구체적으로 알려주세요.")
                 return self._finish(task, "completed", self._answer(task.results[-1]))
             if selection.capability == "clarify":
@@ -287,10 +288,21 @@ class Harness:
                 choices.append("document.write")
         if "action" not in completed and self.registry.candidates("action") and ISO_DATE.search(task.request):
             choices.append("action")
-        if task.results and not missing:
+        if self._answer_ready(task) and not missing:
             choices.append("finish")
         choices.append("clarify")
         return choices
+
+    @staticmethod
+    def _answer_ready(task: Task) -> bool:
+        if not task.results:
+            return False
+        last = task.results[-1]
+        if last.capability in ("vision", "ocr", "memory") and any(
+            result.capability == "memory" for result in task.results
+        ):
+            return False
+        return bool(last.data.get("text") or last.capability == "action")
 
     @staticmethod
     def _missing_effects(task: Task) -> set[str]:
