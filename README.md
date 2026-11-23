@@ -2,7 +2,7 @@
 
 # Model Cocktail
 
-Model Cocktail is a local AI harness from Agentlas. It runs a task through interchangeable model and tool slots for conversation, reasoning, vision, memory, and actions. A decision model selects the next capability from the current task state. The harness checks and records each result before continuing. One request can inspect an image, retrieve a local note, and create a Markdown file.
+Model Cocktail is a local AI harness from Agentlas. It runs a task through interchangeable model and tool slots for conversation, reasoning, vision, memory, and actions. A decision model selects the next capability from the current task state. The harness checks and records each result before continuing, so a later step can use a visual observation, a retrieved note, or another recorded result.
 
 ## Run on macOS
 
@@ -69,7 +69,7 @@ python3 -m cocktail --registry models.local.json run 'Hello'
 
 ## Mobile profile
 
-The [mobile profile](profiles/mobile.json) starts with a 0.6B decision model, reuses a 1.7B model for conversation and reasoning, and adds independent 2B vision and 0.6B embedding checkpoints. Run this model selection on macOS with Ollama. Native Android and iOS integration is a separate step.
+The [mobile profile](profiles/mobile.json) starts with a 0.6B decision model, reuses a 1.7B model for conversation and reasoning, and adds independent 2B vision and 0.6B embedding checkpoints. The four Ollama packages occupy about 4.4 GB of disk space. Run this model selection on macOS with Ollama. Native Android and iOS integration is a separate step.
 
 ```sh
 ollama pull qwen3:0.6b
