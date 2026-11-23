@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "models": {
+    "decision": ["qwen3:0.6b", "qwen3:1.7b"],
+    "conversation": ["qwen3:1.7b"],
+    "reasoning": ["qwen3:1.7b"],
+    "vision": ["qwen3-vl:2b"],
+    "embedding": ["qwen3-embedding:0.6b"]
+  }
+}
