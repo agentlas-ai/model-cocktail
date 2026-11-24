@@ -2,7 +2,28 @@
 
 # Model Cocktail
 
-Model Cocktail is a local AI harness from Agentlas. It runs a task through interchangeable model and tool slots for conversation, reasoning, vision, memory, and actions. A decision model selects the next capability from the current task state. The harness checks and records each result before continuing, so a later step can use a visual observation, a retrieved note, or another recorded result.
+Model Cocktail is an AI motherboard for Agentlas. It connects small, replaceable models and local tools so a phone can carry out multi-step requests. Each socket names a capability. A model, a deterministic engine, or an app adapter can provide that capability.
+
+## The AI motherboard
+
+- **Harness** is the motherboard. Its capability registry connects sockets to providers. Its execution loop manages model loading, passes inputs and results between sockets, and saves checkpoints so work can resume. A failed step can trigger a new decision. The host enforces permissions and approvals.
+- **Decision** is the socket for choosing the next capability. Gallimimus is an experimental, replaceable Agentlas model for this socket. It proposes what to run from the request, available capabilities, and current task state. The harness validates and executes the proposal.
+- **Specialist sockets** define what each part accepts and returns. The common data bus carries structured inputs, results, and source references. The context compiler selects the relevant history, evidence, and constraints for each model's token budget.
+
+```mermaid
+flowchart TD
+    Request["Agentlas · text, image, audio, file"] --> Harness["Harness · registry and context compiler"]
+    Harness --> Decision["Decision socket · e.g. Gallimimus"]
+    Decision --> Dispatch["Harness · validate, authorize, dispatch"]
+    Dispatch --> Part["Selected socket · model, engine, or tool"]
+    Part --> State["Harness · verify result, record sources and task state"]
+    State -->|More work| Harness
+    State -->|Task complete| Output["Answer, artifact, or app UI"]
+```
+
+A socket describes a job. Modality describes the data a provider can handle. A multimodal model can serve more than one socket when the host registers and verifies each capability. For example, one model could answer questions about images and extract text through separate Vision and OCR adapters. Media can go through the bus as references that the selected adapter resolves.
+
+Once the required mobile parts are wired, a user could upload a receipt photo and ask “Compare this with last month's spending and show a chart.” Decision proposes OCR, the harness saves the extracted items with the photo reference, and the next decision retrieves the earlier spending data. A calculator compares the amounts. A Presentation adapter can turn the verified values into a chart specification for Flutter to render.
 
 ## Run on macOS
 
